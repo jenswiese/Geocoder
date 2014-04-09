@@ -18,7 +18,9 @@
         "kriswallsmith/buzz": "@stable",
         "guzzle/guzzle": "@stable",
         "zendframework/zend-http": "~2.1",
-        "geoip/geoip": "~1.13"
+        "geoip/geoip": "~1.13",
+        "geoip2/geoip2": "~0.6",
+        "phpunit/phpunit": "3.7.*"
     },
     "suggest": {
         "kriswallsmith/buzz": "Enabling Buzz allows you to use the BuzzHttpAdapter.",
