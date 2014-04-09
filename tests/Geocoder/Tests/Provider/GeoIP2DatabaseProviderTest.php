@@ -2,11 +2,11 @@
 
 namespace Geocoder\Tests\Provider;
 
+use Geocoder\HttpAdapter\CurlHttpAdapter;
+use Geocoder\HttpAdapter\GeoIP2DatabaseAdapter;
 use Geocoder\Provider\GeoIP2DatabaseProvider;
 use Geocoder\Tests\TestCase;
 use Geocoder\Exception\RuntimeException;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamFile;
 
 class GeoIP2DatabaseProviderTest extends TestCase
 {
@@ -28,44 +28,31 @@ class GeoIP2DatabaseProviderTest extends TestCase
 
     public function setUp()
     {
-        $dbFile = new vfsStreamFile('database.mmdb', 0644);
-        $this->provider = new MaxMindBinary2Provider($dbFile->getName());
+        $this->provider = new GeoIP2DatabaseProvider($this->getDatabaseAdapterMock());
     }
 
     /**
      * @expectedException \Geocoder\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Given MaxMind dat file "not_exist.dat" does not exist.
+     * @expectedExceptionMessage GeoIP2DatabaseAdapter is needed in order to access the GeoIP2 databases.
      */
-    public function testNotExistingDatabaseFileLeadsToException()
+    public function testWrongAdapterLeadsToException()
     {
-        new MaxMindBinary2Provider('/not_exists.mmdb');
-    }
-
-    /**
-     * @expectedException \Geocoder\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Given MaxMind dat file "not_exist.dat" does not exist.
-     */
-    public function testNotReadableDatabaseFileLeadsToException()
-    {
-        $dbFile = new vfsStreamFile('database.mmdb', 0644);
-        $dbFile->chown(vfsStream::OWNER_ROOT);
-
-        new MaxMindBinary2Provider($dbFile->getName());
+        new GeoIP2DatabaseProvider(new CurlHttpAdapter());
     }
 
     public function testGetName()
     {
-        $expectedName = 'maxmind_binary_2';
+        $expectedName = 'geoip2_database';
         $this->assertEquals($expectedName, $this->provider->getName());
     }
 
     /**
      * @expectedException \Geocoder\Exception\UnsupportedException
-     * @expectedExceptionMessage Given MaxMind dat file "not_exist.dat" does not exist.
+     * @expectedExceptionMessage The Geocoder\Provider\GeoIP2DatabaseProvider is not able to do reverse geocoding.
      */
-    public function testOnlyIpAddressesCouldBeResolved()
+    public function testQueryingReversedDataLeadToException()
     {
-        $this->provider->getGeocodedData('Street 123, Somewhere');
+        $this->provider->getReversedData(array(50, 9));
     }
 
     public function testLocalhostDefaults()
@@ -84,63 +71,20 @@ class GeoIP2DatabaseProviderTest extends TestCase
 
     /**
      * @expectedException \Geocoder\Exception\UnsupportedException
-     * @expectedExceptionMessage Given MaxMind dat file "not_exist.dat" does not exist.
+     * @expectedExceptionMessage The Geocoder\Provider\GeoIP2DatabaseProvider does not support street addresses.
      */
-    public function testQueryingReversedDataLeadToException()
+    public function testOnlyIpAddressesCouldBeResolved()
     {
-        $this->provider->getReversedData(array(50, 9));
+        $this->provider->getGeocodedData('Street 123, Somewhere');
     }
 
     /**
-     * @dataProvider provideIps
+     * @return \PHPUnit_Framework_MockObject_MockObject | GeoIP2DatabaseAdapter
      */
-    public function testLocationResultContainsExpectedFields($ip)
+    public function getDatabaseAdapterMock()
     {
-        $this->markTestSkipped();
+        $mock = $this->getMockBuilder('\Geocoder\HttpAdapter\GeoIP2DatabaseAdapter')->disableOriginalConstructor()->getMock();
 
-        $results  = $this->provider->getGeocodedData($ip);
-
-        $this->assertInternalType('array', $results);
-        $this->assertCount(1, $results);
-
-        $result = $results[0];
-        $this->assertInternalType('array', $result);
-
-        $this->assertArrayHasKey('country', $result);
-        $this->assertArrayHasKey('countryCode', $result);
-        $this->assertArrayHasKey('regionCode', $result);
-        $this->assertArrayHasKey('city', $result);
-        $this->assertArrayHasKey('latitude', $result);
-        $this->assertArrayHasKey('longitude', $result);
-        $this->assertArrayHasKey('zipcode', $result);
-        $this->assertArrayHasKey('bounds', $result);
-        $this->assertArrayHasKey('streetNumber', $result);
-        $this->assertArrayHasKey('streetName', $result);
-        $this->assertArrayHasKey('cityDistrict', $result);
-        $this->assertArrayHasKey('county', $result);
-        $this->assertArrayHasKey('countyCode', $result);
-        $this->assertArrayHasKey('region', $result);
-        $this->assertArrayHasKey('timezone', $result);
-    }
-
-    /**
-     * @dataProvider provideIps
-     */
-    public function testFindLocationByIp($ip, $expectedCity, $expectedCountry)
-    {
-        $this->markTestSkipped();
-
-        $result   = $this->provider->getGeocodedData($ip);
-
-        $this->assertInternalType('array', $result);
-        $this->assertCount(1, $result);
-
-        $result = $result[0];
-        $this->assertInternalType('array', $result);
-
-        $this->assertArrayHasKey('city', $result);
-        $this->assertEquals($expectedCity, $result['city']);
-        $this->assertArrayHasKey('country', $result);
-        $this->assertEquals($expectedCountry, $result['country']);
+        return $mock;
     }
 }

@@ -63,11 +63,13 @@ class GeoIP2DatabaseProvider extends AbstractProvider implements ProviderInterfa
         $result = json_decode($this->executeQuery($address));
 
         return array($this->fixEncoding(array_merge($this->getDefaults(), array(
-            'countryCode' => ($result->country->iso_code ?: null),
-            'country'     => ($result->country->names->{$this->locale} ?: null),
-            'city'        => ($result->city->names->{$this->locale} ?: null),
-            'latitude'    => ($result->location->latitude ?: null),
-            'longitude'   => ($result->location->longitude ?: null),
+            'countryCode' => (isset($result->country->iso_code) ? $result->country->iso_code : null),
+            'country'     => (isset($result->country->names->{$this->locale}) ? $result->country->names->{$this->locale} : null),
+            'city'        => (isset($result->city->names->{$this->locale}) ? $result->city->names->{$this->locale} : null),
+            'latitude'    => (isset($result->location->latitude) ? $result->location->latitude : null),
+            'longitude'   => (isset($result->location->longitude) ? $result->location->longitude : null),
+            'timezone'    => (isset($result->location->timezone) ? $result->location->timezone : null),
+            'zipcode'     => (isset($result->location->postalcode) ? $result->location->postalcode : null),
         ))));
     }
 
