@@ -18,7 +18,7 @@ Currently, there are the following adapters:
 * `GuzzleHttpAdapter` to use [Guzzle](https://github.com/guzzle/guzzle), PHP 5.3+ HTTP client and framework for building RESTful web service clients;
 * `SocketHttpAdapter` to use a [socket](http://www.php.net/manual/function.fsockopen.php);
 * `ZendHttpAdapter` to use [Zend Http Client](http://framework.zend.com/manual/2.0/en/modules/zend.http.client.html).
-* `GeoIP2DatabaseAdapter` to use [GeoIP Database Reader by MaxMind](https://github.com/maxmind/GeoIP2-php#database-reader).
+* `GeoIP2DatabaseAdapter` to use [GeoIP2 Database Reader by MaxMind](https://github.com/maxmind/GeoIP2-php#database-reader).
 
 
 ### Providers ###
