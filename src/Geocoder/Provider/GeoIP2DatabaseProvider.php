@@ -22,8 +22,6 @@ use GeoIp2\Exception\AddressNotFoundException;
 use GeoIp2\Model\City;
 
 /**
- * Class GeoIP2DatabaseProvider
- *
  * @author Jens Wiese <jens@howtrueisfalse.de>
  */
 class GeoIP2DatabaseProvider extends AbstractProvider implements ProviderInterface
