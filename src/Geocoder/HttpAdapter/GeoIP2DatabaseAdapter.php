@@ -59,15 +59,23 @@ class GeoIP2DatabaseAdapter implements HttpAdapterInterface
         }
 
         if (false === is_file($dbFile)) {
-            throw new InvalidArgumentException(sprintf('Given MaxMind database file "%s" does not exist.', $dbFile));
+            throw new InvalidArgumentException(sprintf('Given MaxMind database file "%s" is not a file.', $dbFile));
         }
 
         if (false === is_readable($dbFile)) {
-            throw new InvalidArgumentException(sprintf('Given MaxMind database file "%s" does not readable.', $dbFile));
+            throw new InvalidArgumentException(sprintf('Given MaxMind database file "%s" is not readable.', $dbFile));
         }
 
         $this->dbFile = $dbFile;
         $this->dbType = $dbType;
+    }
+
+    /**
+     * @param Reader $dbReader
+     */
+    public function setDbReader(Reader $dbReader)
+    {
+        $this->dbReader = $dbReader;
     }
 
     /**
@@ -82,9 +90,17 @@ class GeoIP2DatabaseAdapter implements HttpAdapterInterface
     }
 
     /**
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    /**
      * Destruct (e.g. database reader)
      */
-    function __destruct()
+    public function __destruct()
     {
         $this->getDbReader()->close();
     }
@@ -94,11 +110,24 @@ class GeoIP2DatabaseAdapter implements HttpAdapterInterface
      *
      * @param string $url (e.g. file://database?127.0.0.1)
      * @throws \Geocoder\Exception\UnsupportedException
+     * @throws \Geocoder\Exception\InvalidArgumentException
      * @return string
      */
     public function getContent($url)
     {
+        $url = trim($url);
+
+        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException(
+                sprintf('"%s" must be called with a valid url. Got "%s" instead.', __METHOD__, $url)
+            );
+        }
+
         $ipAddress = parse_url($url, PHP_URL_QUERY);
+
+        if (false === filter_var($ipAddress, FILTER_VALIDATE_IP)) {
+            throw new InvalidArgumentException('URL must contain a valid query-string (a IP address, 127.0.0.1 for instance)');
+        }
 
         switch ($this->dbType) {
             case self::GEOIP2_CITY:
@@ -131,7 +160,7 @@ class GeoIP2DatabaseAdapter implements HttpAdapterInterface
     protected function getDbReader()
     {
         if (is_null($this->dbReader)) {
-            $this->dbReader = new Reader($this->dbFile, $this->locale);
+            $this->dbReader = new Reader($this->dbFile, $this->getLocale());
         }
 
         return $this->dbReader;

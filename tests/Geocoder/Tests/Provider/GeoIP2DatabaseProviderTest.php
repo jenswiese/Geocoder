@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the Geocoder package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license    MIT License
+ */
+
 namespace Geocoder\Tests\Provider;
 
 use Geocoder\Exception\NoResultException;
@@ -7,25 +15,16 @@ use Geocoder\HttpAdapter\CurlHttpAdapter;
 use Geocoder\HttpAdapter\GeoIP2DatabaseAdapter;
 use Geocoder\Provider\GeoIP2DatabaseProvider;
 use Geocoder\Tests\TestCase;
-use Geocoder\Exception\RuntimeException;
 
+/**
+ * @author Jens Wiese <jens@howtrueisfalse.de>
+ */
 class GeoIP2DatabaseProviderTest extends TestCase
 {
     /**
      * @var GeoIP2DatabaseProvider
      */
     protected $provider;
-
-    /**
-     * @inheritdoc
-     * @throws RuntimeException
-     */
-    public static function setUpBeforeClass()
-    {
-        if (false === class_exists('\GeoIp2\Database\Reader')) {
-            throw new RuntimeException("The maxmind's lib 'geoip2/geoip2' is required to run this test.");
-        }
-    }
 
     public function setUp()
     {
