@@ -92,17 +92,17 @@ class GeoIP2DatabaseAdapter implements HttpAdapterInterface
     /**
      * Returns the content fetched from a given resource.
      *
-     * @param string $uri (e.g. file://mmdb?127.0.0.1)
+     * @param string $url (e.g. file://database?127.0.0.1)
      * @throws \Geocoder\Exception\UnsupportedException
      * @return string
      */
-    public function getContent($uri)
+    public function getContent($url)
     {
-        $ipAddress = parse_url($uri, PHP_URL_QUERY);
+        $ipAddress = parse_url($url, PHP_URL_QUERY);
 
         switch ($this->dbType) {
             case self::GEOIP2_CITY:
-                $result = $this->getDbReader()->omni($ipAddress);
+                $result = $this->getDbReader()->city($ipAddress);
                 break;
             default:
                 throw new UnsupportedException(

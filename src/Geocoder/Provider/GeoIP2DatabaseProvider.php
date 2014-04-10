@@ -96,7 +96,7 @@ class GeoIP2DatabaseProvider extends AbstractProvider implements ProviderInterfa
      */
     protected function executeQuery($address)
     {
-        $uri = sprintf('file://localhost/mmdb?%s', $address);
+        $uri = sprintf('file://database?%s', $address);
 
         try {
             $result = $this->getAdapter()->setLocale($this->locale)->getContent($uri);
